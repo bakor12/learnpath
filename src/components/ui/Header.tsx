@@ -43,9 +43,9 @@ const Header: React.FC = () => {
   return (
     <header
       className={`fixed w-full z-50 transition-all duration-300 ${
-        isScrolled || !isHomePage // Add !isHomePage condition
+        isScrolled || !isHomePage
           ? 'bg-white dark:bg-gray-900 shadow-md py-2'
-          : 'bg-white dark:bg-gray-900 py-4' // Default to white bg, but keep py-4 for consistent height
+          : 'bg-white dark:bg-gray-900 py-4'
       }`}
     >
       <div className="container mx-auto px-4 md:px-6">
@@ -62,12 +62,12 @@ const Header: React.FC = () => {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="w-8 h-8 text-indigo-600"
+                  className="w-8 h-8 text-indigo-600 sm:w-6 sm:h-6"
                 >
                   <path d="M22 10v6M2 10l10-8 10 8-10 8z"></path>
                   <path d="M6 12v8h12v-8"></path>
                 </svg>
-                <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white">LearnPath</span>
+                <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white sm:text-lg md:text-xl">LearnPath</span>
               </span>
             </Link>
 
@@ -81,12 +81,10 @@ const Header: React.FC = () => {
           </div>
 
           {/* Authentication and profile section */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center">
             {status === 'loading' ? (
-              // Loading state
               <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
             ) : session ? (
-              // Logged in state
               <div className="relative group">
                 <button
                   className="flex items-center focus:outline-none"
@@ -112,7 +110,6 @@ const Header: React.FC = () => {
                   </span>
                 </button>
 
-                {/* User dropdown menu - appears on hover on desktop */}
                 <div className="hidden group-hover:block absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700">
                   <Link href="/profile" passHref>
                     <span className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
@@ -139,27 +136,25 @@ const Header: React.FC = () => {
                 </div>
               </div>
             ) : (
-              // Logged out state
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center md:space-x-4 sm:space-x-2">
                 <Link href="/login" passHref>
-                  <span className="text-gray-800 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 font-small cursor-pointer">
+                  <span className="hidden md:inline-block text-gray-800 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 font-small cursor-pointer text-sm sm:text-base">
                     Log in
                   </span>
                 </Link>
                 <Link href="/signup" passHref>
-                  <span className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-small py-2 px-4 rounded-lg transition-colors duration-300 cursor-pointer">
+                  <span className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-small py-2 px-4 rounded-lg transition-colors duration-300 cursor-pointer sm:py-1 sm:px-2 text-sm sm:text-base">
                     Sign up
                   </span>
                 </Link>
               </div>
             )}
 
-            {/* Mobile menu button */}
-            <button
-              className="md:hidden p-2 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              aria-label="Toggle mobile menu"
-            >
+<button
+  className="md:hidden p-2 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none sm:mr-2" // Added sm:mr-2
+  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+  aria-label="Toggle mobile menu"
+>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-6 w-6"
@@ -187,7 +182,6 @@ const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile Navigation Menu */}
         <motion.div
           initial="closed"
           animate={isMobileMenuOpen ? "open" : "closed"}
@@ -199,6 +193,11 @@ const Header: React.FC = () => {
             <MobileNavLink href="/generated" label="Generated" active={router.pathname === '/explore'} onClick={() => setIsMobileMenuOpen(false)} />
             <MobileNavLink href="/paths" label="Learning Paths" active={router.pathname.startsWith('/paths')} onClick={() => setIsMobileMenuOpen(false)} />
             <MobileNavLink href="/resources" label="Resources" active={router.pathname === '/resources'} onClick={() => setIsMobileMenuOpen(false)} />
+
+            {/* Add Log In to the mobile menu */}
+            {!session && (
+              <MobileNavLink href="/login" label="Log in" active={router.pathname === '/login'} onClick={() => setIsMobileMenuOpen(false)} />
+            )}
 
             {session && (
               <>
@@ -224,50 +223,46 @@ const Header: React.FC = () => {
   );
 };
 
-// Desktop Navigation Link Component
 interface NavLinkProps {
   href: string;
   label: string;
   active: boolean;
 }
 
-const NavLink: React.FC<NavLinkProps> = ({ href, label, active }) => {
-  return (
-    <Link href={href} passHref>
-      <span className={`relative inline-block cursor-pointer font-medium transition-colors duration-200 ${
+const NavLink: React.FC<NavLinkProps> = ({ href, label, active }) => (
+  <Link href={href} passHref>
+    <span
+      className={`relative inline-block cursor-pointer font-medium transition-colors duration-200 ${
         active
           ? 'text-indigo-600 dark:text-indigo-400'
           : 'text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400'
-      }`}>
-        {label}
-        {active && (
-          <span className="absolute bottom-0 left-0 h-0.5 w-full bg-indigo-600 dark:bg-indigo-400"></span>
-        )}
-      </span>
-    </Link>
-  );
-};
+      }`}
+    >
+      {label}
+      {active && (
+        <span className="absolute bottom-0 left-0 h-0.5 w-full bg-indigo-600 dark:bg-indigo-400" />
+      )}
+    </span>
+  </Link>
+);
 
-// Mobile Navigation Link Component
 interface MobileNavLinkProps extends NavLinkProps {
   onClick: () => void;
 }
 
-const MobileNavLink: React.FC<MobileNavLinkProps> = ({ href, label, active, onClick }) => {
-  return (
-    <Link href={href} passHref>
-      <span
-        className={`px-4 py-2 text-base cursor-pointer rounded-md transition-colors duration-200 ${
-          active
-            ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300'
-            : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
-        }`}
-        onClick={onClick}
-      >
-        {label}
-      </span>
-    </Link>
-  );
-};
+const MobileNavLink: React.FC<MobileNavLinkProps> = ({ href, label, active, onClick }) => (
+  <Link href={href} passHref>
+    <span
+      className={`px-4 py-2 text-base cursor-pointer rounded-md transition-colors duration-200 ${
+        active
+          ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300'
+          : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
+      }`}
+      onClick={onClick}
+    >
+      {label}
+    </span>
+  </Link>
+);
 
 export default Header;
