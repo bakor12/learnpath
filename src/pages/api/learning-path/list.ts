@@ -21,7 +21,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const { db } = await connectToDatabase();
     const learningPaths: LearningPath[] = await db
-      .collection('learning_paths')
+      .collection<LearningPath>('learning_paths')
       .find({ userId: userId }) // Efficiently query by userId
       .toArray();
 

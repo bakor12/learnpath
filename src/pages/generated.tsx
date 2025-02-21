@@ -26,9 +26,13 @@ const useLearningPaths = () => {
       
       const data = await response.json();
       setLearningPaths(data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error fetching learning paths:', err);
-      setError(err.message || 'An unexpected error occurred');
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred');
+      }
     } finally {
       setLoading(false);
     }
@@ -52,9 +56,13 @@ const useLearningPaths = () => {
       // Update state to remove the deleted path
       setLearningPaths(prevPaths => prevPaths.filter(path => path.id !== id));
       return true;
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error deleting learning path:', err);
-      setError(err.message || 'Failed to delete learning path');
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Failed to delete learning path');
+      }
       return false;
     }
   };
@@ -107,7 +115,7 @@ interface LearningPathCardProps {
 
 const LearningPathCard: React.FC<LearningPathCardProps> = ({ path, onDelete }) => {
   const [isDeleting, setIsDeleting] = useState(false);
-  const router = useRouter();
+  //const router = useRouter();
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();

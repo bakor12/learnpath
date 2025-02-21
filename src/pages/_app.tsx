@@ -9,7 +9,10 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   return (
     <SessionProvider session={session}>
       <Header /> {/* Add the Header component here */}
-      <Component {...pageProps} />
+      {/* Add padding-top to prevent content overlap */}
+      <main className="pt-16"> {/* Adjust 16 to match your header height */}
+        <Component {...pageProps} />
+      </main>
       <Footer /> {/* Add the Footer component here */}
     </SessionProvider>
   );

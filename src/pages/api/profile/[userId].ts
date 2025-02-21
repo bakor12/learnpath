@@ -29,7 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return res.status(404).json({ message: 'User not found' });
         }
         //Remove password before sending
-        const {password, ...userWithoutPassword} = user;
+        const { ...userWithoutPassword} = user;
 
         return res.status(200).json(userWithoutPassword);
     } catch (error) {

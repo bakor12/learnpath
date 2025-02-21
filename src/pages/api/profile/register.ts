@@ -45,8 +45,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await db.collection('users').insertOne(newUser);
 
     return res.status(201).json({ message: 'User created successfully' });
-  } catch (error:any) {
+  } catch (error: unknown) {
     console.error('Error registering user:', error);
-    return res.status(500).json({ message: error.message || 'Internal Server Error' });
+    if (error instanceof Error) {
+      return res.status(500).json({ message: error.message });
+    }
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 }

@@ -1,5 +1,5 @@
 // src/pages/generated/[id].tsx
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
@@ -19,12 +19,12 @@ interface DetailPageProps {
 }
 
 // Types for module progress tracking
-interface ModuleProgress {
+/*interface ModuleProgress {
   started: boolean;
   completed: boolean;
   lastUpdated: Date | null;
   notes: string;
-}
+}*/
 
 // Custom hook for learning module progression
 const useModuleProgress = (pathId: string, moduleId: string, initialStatus: boolean) => {
@@ -94,9 +94,10 @@ const useModuleProgress = (pathId: string, moduleId: string, initialStatus: bool
       await update(); // Update the session
 
       return data.newBadges || [];
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error updating module completion:', err);
-      setError(err.message || 'Failed to mark module as completed');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to mark module as completed';
+      setError(errorMessage);
       return [];
     } finally {
       setIsSubmitting(false);
@@ -129,7 +130,7 @@ const ModuleCard: React.FC<ModuleCardProps> = ({
   onModuleComplete,
   completedModules
 }) => {
-  const [showResources, setShowResources] = useState(false);
+  //const [showResources, setShowResources] = useState(false);
   const [activeSection, setActiveSection] = useState<'overview' | 'resources'>('overview');
   const initialCompletionStatus = completedModules.includes(module.id);
 
@@ -396,7 +397,7 @@ const DetailPage: React.FC<DetailPageProps> = ({ initialLearningPath, error }) =
             <div className="container mx-auto px-4 py-8 max-w-7xl">
                 <div className="mb-8 flex justify-between items-center">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">Learning Path Details</h1>
+                        <h1 className="text-3xl font-bold text-white-900">Learning Path Details</h1>
                         <p className="text-gray-500 mt-2">
                             Track your progress and explore the modules in your learning path.
                         </p>
@@ -441,7 +442,7 @@ const DetailPage: React.FC<DetailPageProps> = ({ initialLearningPath, error }) =
                                                 </h3>
                                                 <div className="mt-2">
                                                     <p className="text-sm text-gray-500">
-                                                        You've earned {newlyEarnedBadges.length} new badge{newlyEarnedBadges.length > 1 ? 's' : ''}!
+                                                        You&aposve earned {newlyEarnedBadges.length} new badge{newlyEarnedBadges.length > 1 ? 's' : ''}!
                                                     </p>
                                                     <div className="mt-4 flex flex-wrap gap-2">
                                                         {newlyEarnedBadges.map((badge, index) => (
@@ -520,7 +521,7 @@ export const getServerSideProps: GetServerSideProps<DetailPageProps> = async (co
         // Convert the MongoDB document to a plain JavaScript object
         const serializedLearningPath: LearningPath = JSON.parse(JSON.stringify({
             ...learningPath,
-            modules: learningPath.modules.map((module: any) => ({
+            modules: learningPath.modules.map((module: LearningModule) => ({
                 ...module,
                 completed: completedModules.includes(module.id) // Mark as completed
             })),

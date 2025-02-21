@@ -5,6 +5,7 @@ import ResourceRecommendations from './ResourceRecommendations'; // Import
 interface LearningPathDisplayProps {
     learningPath: LearningPath;
     onModuleComplete: (moduleId: string) => void; // Add this prop
+    completedModules: string[];
 }
 
 const LearningPathDisplay: React.FC<LearningPathDisplayProps> = ({ learningPath, onModuleComplete }) => { // Add onModuleComplete

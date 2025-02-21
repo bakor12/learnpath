@@ -35,22 +35,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(404).json({ message: 'Learning Path not found' });
     }
 
-    const module = learningPath.modules.find((m: { id: string }) => m.id === moduleId);
+    const currentModule = learningPath.modules.find((m: { id: string }) => m.id === moduleId); // Renamed 'module' to 'currentModule'
 
-    if (!module) {
+    if (!currentModule) {
       return res.status(404).json({ message: 'Module not found' });
     }
 
     const recommendations = await recommendResources(
-      module.title,
-      module.description,
+      currentModule.title,
+      currentModule.description,
       user.learningStyle,
       user.skills || []
     );
 
     return res.status(200).json(recommendations);
-  } catch (error: any) {
-    console.error('Error fetching recommendations:', error);
-    return res.status(500).json({ message: error.message || 'Internal Server Error' });
+  } catch (error: unknown) {
+    console.error('Error recomendation:', error);
+    if (error instanceof Error) {
+      return res.status(500).json({ message: error.message });
+    }
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 }

@@ -1,5 +1,5 @@
 // src/lib/db.ts (Corrected)
-import { MongoClient, ObjectId } from 'mongodb'; // Import ObjectId
+import { MongoClient, Db, ObjectId } from 'mongodb'; // Import Db and ObjectId
 
 const uri = process.env.MONGODB_URI;
 const dbName = process.env.MONGODB_DB;
@@ -13,7 +13,7 @@ if (!dbName) {
 }
 
 let cachedClient: MongoClient | null = null;
-let cachedDb: any = null;
+let cachedDb: Db | null = null; // Use Db type from mongodb
 
 export async function connectToDatabase() {
   if (cachedClient && cachedDb) {
@@ -47,7 +47,7 @@ export async function updateUserProgress(userId: string, moduleId: string) {
       }
 
       const completedModules = user.completedModules || [];
-      let newBadges: string[] = [];
+      const newBadges: string[] = [];
 
       // Example badge criteria (replace with your actual logic)
       if (completedModules.length >= 3 && !user.badges.includes('three-modules-complete')) {

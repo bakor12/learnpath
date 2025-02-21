@@ -37,7 +37,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         try {
             const { db } = await connectToDatabase();
-            let updateData: Partial<User> = {};
+            const updateData: Partial<User> = {};
 
             // Handle skills, learningGoals, and learningStyle
             if (fields.skills) {
@@ -94,9 +94,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             return res.status(200).json({ message: 'Profile updated successfully', user: updatedUser });
 
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error updating profile:', error);
-            return res.status(500).json({ message: error.message || 'Internal Server Error' });
-        }
+            if (error instanceof Error) {
+              return res.status(500).json({ message: error.message });
+            }
+            return res.status(500).json({ message: 'Internal Server Error' });
+          }
     });
 }

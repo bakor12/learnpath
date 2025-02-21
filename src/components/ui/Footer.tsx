@@ -102,7 +102,7 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="bg-purple-900 text-white">
       {/* Main footer content */}
       <div className="container mx-auto px-4 py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -124,14 +124,14 @@ const Footer: React.FC = () => {
               </svg>
               <span className="ml-2 text-xl font-bold">LearnPath</span>
             </div>
-            <p className="text-gray-400 max-w-xs">
+            <p className="text-gray-300 max-w-xs">
               Personalized learning paths tailored to your skills, goals, and learning style.
               Accelerate your career with our AI-powered platform.
             </p>
             
             {/* Contact information with interactive links */}
             <div className="space-y-3">
-              <p className="text-gray-400">{companyInfo.address}</p>
+              <p className="text-gray-300">{companyInfo.address}</p>
               
               {/* WhatsApp link */}
               <div className="flex items-center group">
@@ -145,7 +145,7 @@ const Footer: React.FC = () => {
                 </svg>
                 <a 
                   href={formatWhatsAppLink(companyInfo.whatsapp)} 
-                  className="ml-2 text-gray-400 group-hover:text-green-400 transition-colors duration-300"
+                  className="ml-2 text-gray-300 group-hover:text-green-400 transition-colors duration-300"
                   target="_blank" 
                   rel="noopener noreferrer"
                 >
@@ -161,7 +161,7 @@ const Footer: React.FC = () => {
                   viewBox="0 0 24 24" 
                   strokeWidth={1.5} 
                   stroke="currentColor" 
-                  className="w-5 h-5 text-gray-400 group-hover:text-indigo-400 transition-colors duration-300"
+                  className="w-5 h-5 text-gray-300 group-hover:text-indigo-400 transition-colors duration-300"
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
                 </svg>
@@ -182,7 +182,7 @@ const Footer: React.FC = () => {
               {footerLinks.slice(0, 4).map((link, index) => (
                 <li key={index}>
                   <Link href={link.href} passHref>
-                    <span className="text-gray-400 hover:text-indigo-400 transition-colors duration-300 cursor-pointer">
+                    <span className="text-gray-300 hover:text-indigo-400 transition-colors duration-300 cursor-pointer">
                       {link.label}
                     </span>
                   </Link>
@@ -198,7 +198,7 @@ const Footer: React.FC = () => {
               {footerLinks.slice(4).map((link, index) => (
                 <li key={index}>
                   <Link href={link.href} passHref>
-                    <span className="text-gray-400 hover:text-indigo-400 transition-colors duration-300 cursor-pointer">
+                    <span className="text-gray-300 hover:text-indigo-400 transition-colors duration-300 cursor-pointer">
                       {link.label}
                     </span>
                   </Link>
@@ -210,7 +210,7 @@ const Footer: React.FC = () => {
           {/* Newsletter Subscription */}
           <div>
             <h3 className="text-lg font-semibold mb-6 tracking-wider">Stay Updated</h3>
-            <p className="text-gray-400 mb-4">Subscribe to our newsletter for tips, new courses, and exclusive offers.</p>
+            <p className="text-gray-300 mb-4">Subscribe to our newsletter for tips, new courses, and exclusive offers.</p>
             <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
               <div className="flex flex-col space-y-2">
                 <label htmlFor="email-subscription" className="sr-only">Email address</label>
@@ -234,7 +234,7 @@ const Footer: React.FC = () => {
       </div>
       
       {/* Secondary footer - Social links and copyright */}
-      <div className="border-t border-gray-800">
+      <div className="border-t border-gray-500">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             {/* Social Links */}
@@ -243,7 +243,7 @@ const Footer: React.FC = () => {
                 <a
                   key={index}
                   href={social.url}
-                  className="text-gray-400 hover:text-white transition-colors duration-300"
+                  className="text-gray-300 hover:text-white transition-colors duration-300"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`Follow us on ${social.name}`}
@@ -254,7 +254,7 @@ const Footer: React.FC = () => {
             </div>
             
             {/* Copyright Information */}
-            <div className="text-gray-500 text-sm">
+            <div className="text-gray-400 text-sm">
               &copy; {currentYear} {companyInfo.name}. All rights reserved.
             </div>
           </div>

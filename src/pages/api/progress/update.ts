@@ -31,8 +31,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const newBadges = await awardBadges(userId); // Check for and award badges
 
     return res.status(200).json({ message: 'Progress updated successfully', newBadges });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error updating progress:', error);
-    return res.status(500).json({ message: error.message || 'Internal Server Error' });
+    if (error instanceof Error) {
+      return res.status(500).json({ message: error.message });
+    }
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 }

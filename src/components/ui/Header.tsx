@@ -38,12 +38,14 @@ const Header: React.FC = () => {
     closed: { opacity: 0, height: 0, transition: { duration: 0.3 } }
   };
 
+  const isHomePage = router.pathname === '/';
+
   return (
     <header
       className={`fixed w-full z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-white dark:bg-gray-900 shadow-md py-2' 
-          : 'bg-transparent py-4'
+        isScrolled || !isHomePage // Add !isHomePage condition
+          ? 'bg-white dark:bg-gray-900 shadow-md py-2'
+          : 'bg-white dark:bg-gray-900 py-4' // Default to white bg, but keep py-4 for consistent height
       }`}
     >
       <div className="container mx-auto px-4 md:px-6">
@@ -52,14 +54,14 @@ const Header: React.FC = () => {
           <div className="flex items-center">
             <Link href="/" passHref>
               <span className="flex items-center cursor-pointer">
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   className="w-8 h-8 text-indigo-600"
                 >
                   <path d="M22 10v6M2 10l10-8 10 8-10 8z"></path>
@@ -68,7 +70,7 @@ const Header: React.FC = () => {
                 <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white">LearnPath</span>
               </span>
             </Link>
-            
+
             {/* Desktop Navigation */}
             <nav className="hidden md:flex ml-10 space-x-8">
               <NavLink href="/" label="Home" active={router.pathname === '/'} />
@@ -86,16 +88,16 @@ const Header: React.FC = () => {
             ) : session ? (
               // Logged in state
               <div className="relative group">
-                <button 
-                  className="flex items-center focus:outline-none" 
+                <button
+                  className="flex items-center focus:outline-none"
                   aria-label="Open user menu"
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 >
                   <div className="relative w-10 h-10 rounded-full bg-indigo-100 text-indigo-800 flex items-center justify-center overflow-hidden border-2 border-indigo-600">
                     {session.user?.image ? (
                       <Image
-                        src={session.user.image} 
-                        alt={session.user.name || 'User'} 
+                        src={session.user.image}
+                        alt={session.user.name || 'User'}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -197,7 +199,7 @@ const Header: React.FC = () => {
             <MobileNavLink href="/generated" label="Generated" active={router.pathname === '/explore'} onClick={() => setIsMobileMenuOpen(false)} />
             <MobileNavLink href="/paths" label="Learning Paths" active={router.pathname.startsWith('/paths')} onClick={() => setIsMobileMenuOpen(false)} />
             <MobileNavLink href="/resources" label="Resources" active={router.pathname === '/resources'} onClick={() => setIsMobileMenuOpen(false)} />
-            
+
             {session && (
               <>
                 <hr className="my-2 border-gray-200 dark:border-gray-700" />
@@ -233,8 +235,8 @@ const NavLink: React.FC<NavLinkProps> = ({ href, label, active }) => {
   return (
     <Link href={href} passHref>
       <span className={`relative inline-block cursor-pointer font-medium transition-colors duration-200 ${
-        active 
-          ? 'text-indigo-600 dark:text-indigo-400' 
+        active
+          ? 'text-indigo-600 dark:text-indigo-400'
           : 'text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400'
       }`}>
         {label}

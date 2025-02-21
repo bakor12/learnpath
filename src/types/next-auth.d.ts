@@ -1,5 +1,5 @@
-// src/types/next-auth.d.ts
-import NextAuth, { DefaultSession, DefaultUser } from "next-auth"
+// src/types/next-auth.d.ts (Corrected)
+import { DefaultSession, DefaultUser } from "next-auth" // Removed unused NextAuth import
 
 declare module "next-auth" {
   /**

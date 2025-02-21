@@ -37,8 +37,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const analysisResult = await analyzeResume(user.resumeText, learningGoals, userSkills);
 
     return res.status(200).json(analysisResult);
-  } catch (error: any) {
-    console.error('Error analyzing resume:', error);
-    return res.status(500).json({ message: error.message || 'Internal Server Error' });
+  } catch (error: unknown) {
+    console.error('Error resume analyze:', error);
+    if (error instanceof Error) {
+      return res.status(500).json({ message: error.message });
+    }
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 }

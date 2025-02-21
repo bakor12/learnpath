@@ -1,4 +1,4 @@
-// src/pages/learning-path.tsx (Added console.log)
+// src/pages/learning-path.tsx
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import type { NextPage } from 'next';
@@ -61,15 +61,19 @@ const LearningPathPage: NextPage = () => {
                         setError(errorData.message || 'Failed to fetch user data'); // Set error state
                     }
                 }
-            } catch (err: any) {
-                setError(err.message || 'An error occurred');
+            } catch (err: unknown) {
+                if (err instanceof Error) {
+                    setError(err.message);
+                } else {
+                    setError('An error occurred');
+                }
             } finally {
                 setLoading(false);
             }
         };
 
         fetchLearningPath();
-    }, [status, router, session?.user?.id]);
+    }, [status, router, session]); // Changed: Added 'session' to the dependency array
 
     const handleModuleComplete = async (moduleId: string) => {
         try {
@@ -94,9 +98,12 @@ const LearningPathPage: NextPage = () => {
             setUpdateMessage('Progress updated successfully!');
             await update(); // Update the session
             setTimeout(() => setUpdateMessage(null), 3000); // Clear message after 3 seconds
-
-        } catch (err: any) {
-            setError(err.message || 'An error occurred');
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                setError(err.message);
+            } else {
+                setError('An error occurred');
+            }
         }
     };
 
@@ -124,7 +131,8 @@ const LearningPathPage: NextPage = () => {
                     {updateMessage}
                 </div>
             )}
-            <LearningPathDisplay learningPath={learningPath} onModuleComplete={handleModuleComplete} />
+            {/* Pass completedModules to LearningPathDisplay */}
+            <LearningPathDisplay learningPath={learningPath} onModuleComplete={handleModuleComplete} completedModules={completedModules} />
             <MotivationalMessage />
             <BadgesDisplay badges={badges} />
         </div>

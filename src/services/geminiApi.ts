@@ -63,9 +63,12 @@ export const analyzeResume = async (resumeText: string, learningGoals: string[],
         throw new Error("Unexpected Gemini API response format");
     }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error calling Gemini API:', error);
-    throw new Error(`Gemini API error: ${error.message}`);
+    if (error instanceof Error) {
+      throw new Error(`Gemini API error: ${error.message}`);
+    }
+    throw new Error('Gemini API error: An unknown error occurred');
   }
 };
 
@@ -141,9 +144,12 @@ export const generateLearningPath = async (identifiedSkills: string[], skillGaps
             throw new Error("Unexpected Gemini API response format");
         }
 
-    } catch (error:any) {
+    } catch (error:unknown) {
         console.error('Error calling Gemini API:', error);
-        throw new Error(`Gemini API error: ${error.message}`);
+        if (error instanceof Error) {
+            throw new Error(`Gemini API error: ${error.message}`);
+        }
+        throw new Error('Gemini API error: An unknown error occurred');
     }
 };
 
@@ -210,9 +216,12 @@ export const recommendResources = async (
             console.error("Unexpected Gemini API response format:", response.data);
             throw new Error("Unexpected Gemini API response format");
         }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error calling Gemini API for recommendations:', error);
-      throw new Error(`Gemini API recommendation error: ${error.message}`);
+      if (error instanceof Error) {
+        throw new Error(`Gemini API recommendation error: ${error.message}`);
+      }
+      throw new Error('Gemini API recommendation error: Unknown error occurred');
     }
   };
 
@@ -241,8 +250,11 @@ export const recommendResources = async (
             throw new Error("Unexpected Gemini API response format");
         }
 
-    } catch (error:any) {
-        console.error('Error calling Gemini API for motivation:', error);
+    } catch (error: unknown) {
+      console.error('Error calling Gemini API for motivation:', error);
+      if (error instanceof Error) {
         throw new Error(`Gemini API motivation error: ${error.message}`);
+      }
+      throw new Error('Gemini API motivation error: Unknown error occurred');
     }
 };
