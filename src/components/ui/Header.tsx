@@ -142,12 +142,12 @@ const Header: React.FC = () => {
               // Logged out state
               <div className="flex items-center space-x-4">
                 <Link href="/login" passHref>
-                  <span className="text-gray-800 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 font-medium cursor-pointer">
+                  <span className="text-gray-800 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 font-small cursor-pointer">
                     Log in
                   </span>
                 </Link>
                 <Link href="/signup" passHref>
-                  <span className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-300 cursor-pointer">
+                  <span className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-small py-2 px-4 rounded-lg transition-colors duration-300 cursor-pointer">
                     Sign up
                   </span>
                 </Link>
