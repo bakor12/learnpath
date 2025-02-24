@@ -75,7 +75,7 @@ const Header: React.FC = () => {
             <nav className="hidden md:flex ml-10 space-x-8">
               <NavLink href="/" label="Home" active={router.pathname === '/'} />
               <NavLink href="/generated" label="Generated" active={router.pathname === '/explore'} />
-              <NavLink href="/paths" label="Learning Paths" active={router.pathname.startsWith('/paths')} />
+              <NavLink href="/learning-path" label="Learning Paths" active={router.pathname.startsWith('/paths')} />
               <NavLink href="/resources" label="Resources" active={router.pathname === '/resources'} />
             </nav>
           </div>

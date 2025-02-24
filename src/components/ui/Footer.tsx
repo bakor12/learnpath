@@ -12,9 +12,9 @@ const Footer: React.FC = () => {
   // Company contact information
   const companyInfo = {
     name: 'LearnPath, Inc.',
-    address: '123 Learning Ave, San Francisco, CA 94107',
-    whatsapp: '+1-555-123-4567',
-    email: 'contact@learnpath.dev',
+    address: 'Dhaka, Bangladesh',
+    whatsapp: '+8801862038224',
+    email: 'abubakor570@gmail.com',
   };
 
   // Social media links with icons and URLs
