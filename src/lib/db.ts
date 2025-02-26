@@ -68,3 +68,5 @@ export async function updateUserProgress(userId: string, moduleId: string) {
 
       return [];
   }
+
+export { ObjectId };

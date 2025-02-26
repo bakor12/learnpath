@@ -92,6 +92,7 @@ const Footer: React.FC = () => {
     { label: 'FAQ', href: '/faq' },
     { label: 'Privacy Policy', href: '/privacy' },
     { label: 'Terms of Service', href: '/terms' },
+    { label: 'Contact and Support', href: '/support' },
   ];
 
   // Function to convert WhatsApp number to a valid WhatsApp link

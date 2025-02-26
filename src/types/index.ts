@@ -1,5 +1,46 @@
-// src/types/index.ts
+import { ObjectId } from "mongodb";
 
+export interface LinkData {
+  url: string;
+  text: string;
+}
+
+export interface BlogImage {
+  url: string;
+  publicId: string;
+  alt?: string;
+  caption?: string;
+}
+
+export interface BlogPost {
+  _id: ObjectId;
+  title: string;
+  content: string;
+  excerpt?: string;
+  authorId: ObjectId;
+  authorName: string;
+  createdAt: Date;
+  updatedAt: Date;
+  metaTitle?: string;
+  metaDescription?: string;
+  featuredImage?: BlogImage; // New field for storing image data
+}
+
+export interface ClientBlogPost {
+  _id: string;
+  title: string;
+  content: string;
+  excerpt?: string;
+  authorId: string;
+  authorName: string;
+  createdAt: string;
+  updatedAt: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  featuredImage?: BlogImage; // New field for storing image data
+}
+
+// ... (rest of your interfaces remain unchanged) ...
 export interface User {
   id: string;
   email: string;
@@ -37,6 +78,24 @@ export interface Recommendation {
   description: string;
   url: string;
   type: 'article' | 'video' | 'course' | 'other';
+  topic: string;
+  suggestion: string;
+  error?: string;
 }
 
-// You can add other shared types here as needed
+export interface UploadResult {
+  filename: string;
+  status: 'success' | 'error';
+  doc_id?: string;
+}
+
+export interface UploadResponse {
+  results: UploadResult[];
+}
+
+// New interface for image upload response
+export interface ImageUploadResponse {
+  url: string;
+  publicId: string;
+  error?: string;
+}
