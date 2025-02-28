@@ -74,9 +74,10 @@ const Header: React.FC = () => {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex ml-10 space-x-8">
               <NavLink href="/" label="Home" active={router.pathname === '/'} />
-              <NavLink href="/generated" label="Generated" active={router.pathname === '/explore'} />
-              <NavLink href="/learning-path" label="Learning Paths" active={router.pathname.startsWith('/paths')} />
+              <NavLink href="/generated" label="Generated" active={router.pathname === '/generated'} />
+              <NavLink href="/learning-path" label="Learning Paths" active={router.pathname.startsWith('/learning-path')} />
               <NavLink href="/resources" label="Resources" active={router.pathname === '/resources'} />
+              <NavLink href="/pricing" label="Pricing" active={router.pathname === '/pricing'} />
             </nav>
           </div>
 
@@ -190,9 +191,10 @@ const Header: React.FC = () => {
         >
           <nav className="flex flex-col mt-4 pb-4 space-y-2">
             <MobileNavLink href="/" label="Home" active={router.pathname === '/'} onClick={() => setIsMobileMenuOpen(false)} />
-            <MobileNavLink href="/generated" label="Generated" active={router.pathname === '/explore'} onClick={() => setIsMobileMenuOpen(false)} />
-            <MobileNavLink href="/paths" label="Learning Paths" active={router.pathname.startsWith('/paths')} onClick={() => setIsMobileMenuOpen(false)} />
+            <MobileNavLink href="/generated" label="Generated" active={router.pathname === '/generated'} onClick={() => setIsMobileMenuOpen(false)} />
+            <MobileNavLink href="/learning-path" label="Learning Paths" active={router.pathname.startsWith('/learning-path')} onClick={() => setIsMobileMenuOpen(false)} />
             <MobileNavLink href="/resources" label="Resources" active={router.pathname === '/resources'} onClick={() => setIsMobileMenuOpen(false)} />
+            <MobileNavLink href="/pricing" label="Pricing" active={router.pathname === '/pricing'} onClick={() => setIsMobileMenuOpen(false)} />
 
             {/* Add Log In to the mobile menu */}
             {!session && (

@@ -235,7 +235,7 @@ const Signup: NextPage = () => {
                       ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
                       : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
                   } shadow-sm transition-all`}
-                  placeholder="John Doe"
+                  placeholder="Your Name"
                 />
                 {touched.name && errors.name && (
                   <motion.p
