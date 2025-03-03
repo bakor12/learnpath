@@ -9,7 +9,7 @@ import MotivationalMessage from '../components/learningPath/MotivationalMessage'
 import BadgesDisplay from '../components/learningPath/BadgesDisplay';
 
 const LearningPathPage: NextPage = () => {
-    const { data: session, status, update } = useSession();
+    const { data: session, status} = useSession();
     const router = useRouter();
     const [learningPath, setLearningPath] = useState<LearningPath | null>(null);
     const [completedModules, setCompletedModules] = useState<string[]>([]);
@@ -34,31 +34,69 @@ const LearningPathPage: NextPage = () => {
                 // 1. Trigger resume analysis (if needed)
                 const analyzeRes = await fetch('/api/resume/analyze', { method: 'POST' });
                 if (!analyzeRes.ok) {
-                    // Get more detailed error message from the response
-                    const errorData = await analyzeRes.json();
-                    throw new Error(errorData.message || 'Failed to analyze resume');
+                    // Safely attempt to get error details, but have a fallback
+                    try {
+                        const errorData = await analyzeRes.json();
+                        throw new Error(errorData.message || 'Failed to analyze resume');
+                    } catch (parseError) {
+                        // Log the parsing error
+                        console.error("JSON parsing error (resume analysis):", parseError);
+                        throw new Error(`Resume analysis failed: ${analyzeRes.status} ${analyzeRes.statusText}`);
+                    }
                 }
 
                 // 2. Generate the learning path
-                const response = await fetch('/api/learning-path/generate', { method: 'POST' });
+                const response = await fetch('/api/learning-path/generate', {
+                    method: 'POST',
+                    // Add timeout signal if supported by the browser
+                    signal: AbortSignal.timeout ? AbortSignal.timeout(30000) : undefined
+                });
+
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Failed to generate learning path');
+                    // Safely attempt to get error details with a fallback
+                    try {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || 'Failed to generate learning path');
+                    } catch (parseError) {
+                        // Log the parsing error
+                        console.error("JSON parsing error (learning path generation):", parseError);
+                        throw new Error(`Learning path generation failed: ${response.status} ${response.statusText}`);
+                    }
                 }
-                const data = await response.json();
-                console.log("API Response Data:", data); // ADD THIS LINE
-                setLearningPath(data);
+
+                // Safely parse the response
+                try {
+                    const data = await response.json();
+                    console.log("API Response Data:", data);
+                    setLearningPath(data);
+                } catch (parseError) {
+                    // Log the parsing error
+                    console.error("JSON parsing error (setting learning path):", parseError);
+                    throw new Error('Failed to parse learning path data. Please try again.');
+                }
 
                 // 3. Fetch user data (for completed modules and badges)
                 if (session?.user?.id) {
                     const userRes = await fetch(`/api/profile/${session.user.id}`);
                     if (userRes.ok) {
-                        const userData: User = await userRes.json();
-                        setCompletedModules(userData.completedModules || []);
-                        setBadges(userData.badges || []);
+                        try {
+                            const userData: User = await userRes.json();
+                            setCompletedModules(userData.completedModules || []);
+                            setBadges(userData.badges || []);
+                        } catch (parseError) {
+                            // Log the parsing error
+                            console.error("JSON parsing error (fetching user data):", parseError);
+                            setError('Failed to parse user data');
+                        }
                     } else {
-                        const errorData = await userRes.json();
-                        setError(errorData.message || 'Failed to fetch user data'); // Set error state
+                        try {
+                            const errorData = await userRes.json();
+                            setError(errorData.message || 'Failed to fetch user data');
+                        } catch (parseError) {
+                            // Log the parsing error
+                            console.error("JSON parsing error (fetching user data - error response):", parseError);
+                            setError(`Failed to fetch user data: ${userRes.status} ${userRes.statusText}`);
+                        }
                     }
                 }
             } catch (err: unknown) {
@@ -67,6 +105,7 @@ const LearningPathPage: NextPage = () => {
                 } else {
                     setError('An error occurred');
                 }
+                console.error('Learning path error:', err);
             } finally {
                 setLoading(false);
             }
@@ -85,25 +124,39 @@ const LearningPathPage: NextPage = () => {
                 body: JSON.stringify({ moduleId }),
             });
 
-            const data = await response.json();
-
             if (!response.ok) {
-                throw new Error(data.message || 'Failed to update progress');
+                try {
+                    const data = await response.json();
+                    throw new Error(data.message || 'Failed to update progress');
+                } catch (parseError) {
+                    // Log the parsing error
+                    console.error("JSON parsing error (updating progress - error response):", parseError);
+                    throw new Error(`Failed to update progress: ${response.status} ${response.statusText}`);
+                }
             }
-            // Update local state and session
-            setCompletedModules((prev) => [...prev, moduleId]);
-            if (data.newBadges && data.newBadges.length > 0) {
-                setBadges((prev) => [...prev, ...data.newBadges]);
+
+            try {
+                const data = await response.json();
+                // Update local state and session
+                setCompletedModules((prev) => [...prev, moduleId]);
+                if (data.newBadges && data.newBadges.length > 0) {
+                    setBadges((prev) => [...prev, ...data.newBadges]);
+                }
+                setUpdateMessage('Progress updated successfully!');
+                //await update(); // Update the session
+                setTimeout(() => setUpdateMessage(null), 3000); // Clear message after 3 seconds
+            } catch (parseError) {
+                // Log the parsing error
+                console.error("JSON parsing error (updating progress):", parseError);
+                throw new Error('Failed to parse progress update response');
             }
-            setUpdateMessage('Progress updated successfully!');
-            await update(); // Update the session
-            setTimeout(() => setUpdateMessage(null), 3000); // Clear message after 3 seconds
         } catch (err: unknown) {
             if (err instanceof Error) {
                 setError(err.message);
             } else {
                 setError('An error occurred');
             }
+            console.error('Module completion error:', err);
         }
     };
 

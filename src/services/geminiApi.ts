@@ -1,12 +1,16 @@
-// src/services/geminiApi.ts (Added console.log)
+// src/services/geminiApi.ts
 import axios from 'axios';
 
 const GEMINI_API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='; // Replace with the correct endpoint
 
+// Set timeout for Gemini API requests (10 seconds)
+const GEMINI_TIMEOUT = 100000; 
+
 if (!GEMINI_API_KEY) {
     throw new Error("Gemini API Key is not defined")
 }
+
 export const analyzeResume = async (resumeText: string, learningGoals: string[], userSkills: string[]) => {
   try {
     const prompt = `Analyze the following resume text and identify skills and skill gaps based on the provided learning goals and current skills.
@@ -33,6 +37,7 @@ export const analyzeResume = async (resumeText: string, learningGoals: string[],
       headers: {
         'Content-Type': 'application/json',
       },
+      timeout: GEMINI_TIMEOUT // Add timeout
     });
 
     // Extract the relevant data from the Gemini API response (adjust based on the actual response structure)
@@ -64,6 +69,12 @@ export const analyzeResume = async (resumeText: string, learningGoals: string[],
     }
 
   } catch (error: unknown) {
+    // Check for timeout error specifically
+    if (axios.isAxiosError(error) && error.code === 'ECONNABORTED') {
+      console.error('Gemini API timeout:', error);
+      throw new Error(`Gemini API timeout: The request took too long to complete`);
+    }
+    
     console.error('Error calling Gemini API:', error);
     if (error instanceof Error) {
       throw new Error(`Gemini API error: ${error.message}`);
@@ -115,6 +126,7 @@ export const generateLearningPath = async (identifiedSkills: string[], skillGaps
             headers: {
                 'Content-Type': 'application/json',
             },
+            timeout: GEMINI_TIMEOUT // Add timeout
         });
 
         if (response.data.candidates && response.data.candidates[0] && response.data.candidates[0].content && response.data.candidates[0].content.parts && response.data.candidates[0].content.parts[0] && response.data.candidates[0].content.parts[0].text) {
@@ -145,6 +157,12 @@ export const generateLearningPath = async (identifiedSkills: string[], skillGaps
         }
 
     } catch (error:unknown) {
+        // Check for timeout error specifically
+        if (axios.isAxiosError(error) && error.code === 'ECONNABORTED') {
+          console.error('Gemini API timeout:', error);
+          throw new Error(`Gemini API timeout: The request took too long to complete`);
+        }
+        
         console.error('Error calling Gemini API:', error);
         if (error instanceof Error) {
             throw new Error(`Gemini API error: ${error.message}`);
@@ -190,6 +208,7 @@ export const recommendResources = async (
         headers: {
           'Content-Type': 'application/json',
         },
+        timeout: GEMINI_TIMEOUT // Add timeout
       });
   
         if (response.data.candidates && response.data.candidates[0] && response.data.candidates[0].content && response.data.candidates[0].content.parts && response.data.candidates[0].content.parts[0] && response.data.candidates[0].content.parts[0].text) {
@@ -217,6 +236,12 @@ export const recommendResources = async (
             throw new Error("Unexpected Gemini API response format");
         }
     } catch (error: unknown) {
+      // Check for timeout error specifically
+      if (axios.isAxiosError(error) && error.code === 'ECONNABORTED') {
+        console.error('Gemini API timeout:', error);
+        throw new Error(`Gemini API timeout: The request took too long to complete`);
+      }
+      
       console.error('Error calling Gemini API for recommendations:', error);
       if (error instanceof Error) {
         throw new Error(`Gemini API recommendation error: ${error.message}`);
@@ -241,6 +266,7 @@ export const recommendResources = async (
             headers: {
                 'Content-Type': 'application/json',
             },
+            timeout: GEMINI_TIMEOUT // Add timeout
         });
         if (response.data.candidates && response.data.candidates[0] && response.data.candidates[0].content && response.data.candidates[0].content.parts && response.data.candidates[0].content.parts[0] && response.data.candidates[0].content.parts[0].text) {
             const generatedText = response.data.candidates[0].content.parts[0].text;
@@ -251,6 +277,12 @@ export const recommendResources = async (
         }
 
     } catch (error: unknown) {
+      // Check for timeout error specifically
+      if (axios.isAxiosError(error) && error.code === 'ECONNABORTED') {
+        console.error('Gemini API timeout:', error);
+        throw new Error(`Gemini API timeout: The request took too long to complete`);
+      }
+      
       console.error('Error calling Gemini API for motivation:', error);
       if (error instanceof Error) {
         throw new Error(`Gemini API motivation error: ${error.message}`);

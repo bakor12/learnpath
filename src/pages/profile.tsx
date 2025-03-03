@@ -1,4 +1,3 @@
-// src/pages/profile.tsx
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import type { NextPage } from 'next';
@@ -11,12 +10,12 @@ import Head from 'next/head';
 // Animation variants for page elements
 const pageTransition = {
   hidden: { opacity: 0, y: 20 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     y: 0,
     transition: { duration: 0.5 }
   },
-  exit: { 
+  exit: {
     opacity: 0,
     y: -20,
     transition: { duration: 0.3 }
@@ -38,13 +37,13 @@ const Profile: NextPage = () => {
       router.push('/login'); // Redirect if not logged in
       return;
     }
-    
+
     const fetchUserProfile = async () => {
       if (session?.user?.id) {
         try {
           setLoading(true);
           const res = await fetch(`/api/profile/${session.user.id}`);
-          
+
           if (res.ok) {
             const userData = await res.json();
             setUser(userData); // Set initial user data
@@ -102,7 +101,7 @@ const Profile: NextPage = () => {
           </div>
           <div className="p-6">
             <p className="text-gray-700 dark:text-gray-300 mb-4">{error}</p>
-            <button 
+            <button
               onClick={() => router.reload()}
               className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded transition duration-200"
             >
@@ -127,7 +126,7 @@ const Profile: NextPage = () => {
           </div>
           <div className="p-6">
             <p className="text-gray-700 dark:text-gray-300 mb-4">You must be logged in to view your profile.</p>
-            <button 
+            <button
               onClick={() => router.push('/login')}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition duration-200"
             >
@@ -146,8 +145,8 @@ const Profile: NextPage = () => {
         <title>Your Profile | My Learning App</title>
         <meta name="description" content="Manage your learning profile, skills, goals and preferences" />
       </Head>
-      
-      <motion.div 
+
+      <motion.div
         className="container mx-auto p-4 sm:p-6 lg:p-8"
         initial="hidden"
         animate="visible"
@@ -159,12 +158,12 @@ const Profile: NextPage = () => {
             <h1 className="text-3xl font-bold text-white">Your Learning Profile</h1>
             <p className="text-blue-100 mt-2">Manage your skills, goals, and learning preferences</p>
           </div>
-          
+
           <div className="p-6 sm:p-8">
             <AnimatePresence>
               {updateSuccess && (
-                <motion.div 
-                  className="bg-green-100 border-l-4 border-green-500 dark:bg-green-900/30 dark:border-green-400 text-green-700 dark:text-green-300 p-4 rounded-md mb-6 flex items-start" 
+                <motion.div
+                  className="bg-green-100 border-l-4 border-green-500 dark:bg-green-900/30 dark:border-green-400 text-green-700 dark:text-green-300 p-4 rounded-md mb-6 flex items-start"
                   role="alert"
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -199,20 +198,24 @@ const Profile: NextPage = () => {
                   <div>
                     <p className="text-sm text-gray-500 dark:text-gray-400">Skills</p>
                     <div className="flex flex-wrap gap-2 mt-1">
-                      {user.skills?.map((skill, index) => (
-                        <span key={index} className="bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 text-xs px-2 py-1 rounded-full">
-                          {skill}
-                        </span>
-                      ))}
+                      {(user?.skills ?? []).length > 0 ? (
+                        (user?.skills ?? []).map((skill, index) => (
+                          <span key={index} className="bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 text-xs px-2 py-1 rounded-full">
+                            {skill}
+                          </span>
+                        ))
+                      ) : (
+                        <p className="text-gray-500 dark:text-gray-400 italic">No skills specified yet.</p>
+                      )}
                     </div>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500 dark:text-gray-400">Learning Style</p>
-                    <p className="font-medium text-gray-800 dark:text-gray-200 capitalize">{user.learningStyle || "Not specified"}</p>
+                    <p className="font-medium text-gray-800 dark:text-gray-200 capitalize">{user?.learningStyle || "Not specified"}</p>
                   </div>
                 </div>
               </div>
-              
+
               <div className="lg:col-span-2">
                 <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center">
                   <svg className="w-5 h-5 mr-2 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -221,9 +224,9 @@ const Profile: NextPage = () => {
                   Learning Goals
                 </h2>
                 <div className="bg-gray-50 dark:bg-gray-700/50 p-6 rounded-lg shadow-sm">
-                  {(user.learningGoals ?? []).length > 0 ? (
+                  {Array.isArray(user?.learningGoals) && user.learningGoals.length > 0 ? (
                     <ul className="space-y-3">
-                      {(user.learningGoals ?? []).map((goal, index) => (
+                      {user.learningGoals.map((goal, index) => (
                         <li key={index} className="flex items-start">
                           <svg className="w-5 h-5 mr-2 text-green-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -238,7 +241,7 @@ const Profile: NextPage = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
               <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
                 <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Edit Profile</h2>
@@ -246,9 +249,9 @@ const Profile: NextPage = () => {
               </div>
               <div className="p-6">
                 <ProfileForm
-                  initialSkills={user.skills}
-                  initialLearningGoals={user.learningGoals}
-                  initialLearningStyle={user.learningStyle}
+                  initialSkills={user?.skills ?? []}
+                  initialLearningGoals={user?.learningGoals ?? []}
+                  initialLearningStyle={user?.learningStyle}
                   onUpdateSuccess={handleUpdateSuccess}
                 />
               </div>

@@ -2,8 +2,7 @@
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcrypt';
-import { connectToDatabase } from '../../../lib/db'; // We'll implement this later
-//import { User } from '../../../types';
+import { connectToDatabase } from '../../../lib/db';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -15,7 +14,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials || !credentials.email || !credentials.password) {
-          throw new Error('Invalid credentials'); // Throw an error for NextAuth to handle
+          throw new Error('Invalid credentials');
         }
 
         const { db } = await connectToDatabase();
@@ -25,39 +24,40 @@ export const authOptions: NextAuthOptions = {
           throw new Error('User not found');
         }
 
-        const passwordMatch = await bcrypt.compare(credentials.password, user.password!); // Assuming password is not optional after registration
+        const passwordMatch = await bcrypt.compare(credentials.password, user.password!);
 
         if (!passwordMatch) {
           throw new Error('Invalid password');
         }
 
-        // Return the user object.  NextAuth will handle creating the session.
-        return { id: user._id.toString(), email: user.email, name: user.name }; // Return essential user data
+        return { id: user._id.toString(), email: user.email, name: user.name };
       },
     }),
   ],
   session: {
-    strategy: 'jwt', // Use JSON Web Tokens for session management
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+    updateAge: 24 * 60 * 60, // 24 hours
   },
-  secret: process.env.NEXTAUTH_SECRET, // Use an environment variable for the secret
+  secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async jwt({ token, user }) {
-      // Persist the user ID to the token right after signin
       if (user) {
         token.userId = user.id;
       }
       return token;
     },
     async session({ session, token }) {
-      // Send properties to the client
-      session.user.id = token.userId as string;
+      if (session.user) {
+        session.user.id = token.userId as string;
+      }
       return session;
     },
   },
   pages: {
-    signIn: '/login', // Custom login page
-    // error: '/auth/error', // You can create a custom error page if needed
+    signIn: '/login',
   },
+  debug: process.env.NODE_ENV === 'development',
 };
 
 export default NextAuth(authOptions);

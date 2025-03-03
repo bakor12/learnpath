@@ -59,10 +59,25 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 
     // Add a skill when pressing Enter
     const handleSkillKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter' && skillInput.trim()) {
+        console.log("handleSkillKeyDown triggered", e.key, e.code, e.keyCode, skillInput); // LOG 1: Include code and keyCode
+    
+        // Use e.code if available, otherwise fall back to e.keyCode
+        const isEnter = e.key === 'Enter' || e.code === 'Enter' || e.keyCode === 13;
+    
+        if (isEnter && skillInput.trim()) {
             e.preventDefault();
-            if (!skills.includes(skillInput.trim())) {
-                setSkills([...skills, skillInput.trim()]);
+            const trimmedSkill = skillInput.trim();
+            console.log("trimmedSkill:", trimmedSkill); // LOG 2
+            if (!skills.includes(trimmedSkill)) {
+                console.log("Adding skill:", trimmedSkill); // LOG 3
+                setSkills(prevSkills => {
+                    console.log("prevSkills:", prevSkills); // LOG 4
+                    const newSkills = [...prevSkills, trimmedSkill];
+                    console.log("newSkills:", newSkills);  // LOG 5
+                    return newSkills;
+                });
+            } else {
+                console.log("Skill already exists:", trimmedSkill); // LOG 6
             }
             setSkillInput('');
         }
@@ -80,15 +95,30 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 
     // Add a learning goal when pressing Enter
     const handleGoalKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter' && goalInput.trim()) {
+        console.log("handleGoalKeyDown triggered", e.key, e.code, e.keyCode, goalInput); // LOG 1: Include code and keyCode
+    
+        // Use e.code if available, otherwise fall back to e.keyCode
+        const isEnter = e.key === 'Enter' || e.code === 'Enter' || e.keyCode === 13;
+    
+        if (isEnter && goalInput.trim()) {
             e.preventDefault();
-            if (!learningGoals.includes(goalInput.trim())) {
-                setLearningGoals([...learningGoals, goalInput.trim()]);
+            const trimmedGoal = goalInput.trim();
+            console.log("trimmedGoal:", trimmedGoal); // LOG 2
+    
+            if (!learningGoals.includes(trimmedGoal)) {
+                console.log("Adding goal:", trimmedGoal); // LOG 3
+                setLearningGoals(prevGoals => {
+                    console.log("prevGoals:", prevGoals); // LOG 4
+                    const newGoals = [...prevGoals, trimmedGoal];
+                    console.log("newGoals:", newGoals); // LOG 5
+                    return newGoals;
+                });
+            } else {
+                console.log("Goal already exists:", trimmedGoal); // LOG 6
             }
             setGoalInput('');
         }
     };
-
     // Remove a learning goal
     const removeGoal = (index: number) => {
         setLearningGoals(learningGoals.filter((_, i) => i !== index));
@@ -158,7 +188,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
         e.preventDefault();
         setLoading(true);
         setError(null);
-
+    
         try {
             const formData = new FormData();
             if (resumeFile) {
@@ -167,7 +197,13 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
             formData.append('skills', JSON.stringify(skills));
             formData.append('learningGoals', JSON.stringify(learningGoals));
             formData.append('learningStyle', learningStyle);
-
+    
+            // Add these log statements:
+            console.log("Skills being sent:", skills);
+            console.log("Learning Goals being sent:", learningGoals);
+            console.log("Learning Style being sent", learningStyle);
+            console.log("Skills being sent (inside handleSubmit):", skills); // Keep this
+            console.log("Learning Goals being sent (inside handleSubmit):", learningGoals); // Keep this
             // Simulate upload progress
             const timer = setInterval(() => {
                 setUploadProgress(prev => {
@@ -279,15 +315,15 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                     </div>
                     
                     <div className="relative">
-                        <input
-                            type="text"
-                            id="skills"
-                            value={skillInput}
-                            onChange={handleSkillInputChange}
-                            onKeyDown={handleSkillKeyDown}
-                            placeholder="Type a skill and press Enter"
-                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white text-sm placeholder-gray-400"
-                        />
+                    <input
+    type="text"
+    id="skills"
+    value={skillInput}
+    onChange={handleSkillInputChange}
+    onKeyDown={handleSkillKeyDown} // Use onKeyDown
+    placeholder="Type a skill and press Enter"
+    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white text-sm placeholder-gray-400"
+/>
                         <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -317,15 +353,15 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                     </div>
                     
                     <div className="relative">
-                        <input
-                            type="text"
-                            id="learningGoals"
-                            value={goalInput}
-                            onChange={handleGoalInputChange}
-                            onKeyDown={handleGoalKeyDown}
-                            placeholder="Type a learning goal and press Enter"
-                            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white text-sm placeholder-gray-400"
-                        />
+                    <input
+    type="text"
+    id="learningGoals"
+    value={goalInput}
+    onChange={handleGoalInputChange}
+    onKeyDown={handleGoalKeyDown}   // Use onKeyDown
+    placeholder="Type a learning goal and press Enter"
+    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white text-sm placeholder-gray-400"
+/>
                         <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />

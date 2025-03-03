@@ -4,14 +4,14 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]';
 import { connectToDatabase } from '../../../lib/db';
 import { User } from '../../../types';
-import formidable, { File } from 'formidable'; // Import File type
+import formidable, { File } from 'formidable';
 import fs from 'fs';
 import pdfParse from 'pdf-parse';
 import { ObjectId } from 'mongodb';
 
 export const config = {
     api: {
-        bodyParser: false, // Disable default body parsing to use formidable
+        bodyParser: false,
     },
 };
 
@@ -26,80 +26,108 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
     const userId = session.user.id;
 
-    // Corrected instantiation of formidable:
-    const form = formidable(); // Use formidable() directly, NOT new formidable.IncomingForm()
+    const form = formidable();
 
-    form.parse(req, async (err, fields, files) => {
-        if (err) {
-            console.error("Formidable error:", err);
-            return res.status(500).json({ message: 'Failed to process form data' });
-        }
-
-        try {
-            const { db } = await connectToDatabase();
-            const updateData: Partial<User> = {};
-
-            // Handle skills, learningGoals, and learningStyle
-            if (fields.skills) {
-                updateData.skills = Array.isArray(fields.skills) ? fields.skills : [fields.skills];
+    return new Promise<void>((resolve) => {
+        form.parse(req, async (err, fields, files) => {
+            if (err) {
+                console.error("Formidable error:", err);
+                res.status(500).json({ message: 'Failed to process form data' });
+                resolve();
+                return;
             }
-            if (fields.learningGoals) {
-                updateData.learningGoals = Array.isArray(fields.learningGoals) ? fields.learningGoals : [fields.learningGoals];
-            }
-            if (fields.learningStyle) {
-                const learningStyle = Array.isArray(fields.learningStyle) ? fields.learningStyle[0] : fields.learningStyle;
-                if (!['visual', 'auditory', 'kinesthetic'].includes(learningStyle)) {
-                    throw new Error('Invalid learning style');
+
+            try {
+                const { db } = await connectToDatabase();
+                const updateData: Partial<User> = {};
+
+                if (fields.skills) {
+                    try {
+                        updateData.skills = JSON.parse(fields.skills[0] as string);
+                    } catch (parseError) {
+                        console.error("Error parsing skills:", parseError);
+                        res.status(400).json({ message: 'Invalid skills data' });
+                        resolve();
+                        return;
+                    }
                 }
-                updateData.learningStyle = learningStyle as 'visual' | 'auditory' | 'kinesthetic';
-            }
 
-            // Handle resume file (if provided)
-            if (files.resume) {
-                const resumeFile: File | File[] = files.resume; // Correct type annotation
+                if (fields.learningGoals) {
+                    try {
+                        updateData.learningGoals = JSON.parse(fields.learningGoals[0] as string);
+                    } catch (parseError) {
+                        console.error("Error parsing learningGoals:", parseError);
+                        res.status(400).json({ message: 'Invalid learningGoals data' });
+                        resolve();
+                        return;
+                    }
+                }
 
-                let singleResumeFile: File;
+                if (fields.learningStyle) {
+                    const learningStyle = Array.isArray(fields.learningStyle)
+                        ? fields.learningStyle[0]
+                        : fields.learningStyle;
+                    if (!['visual', 'auditory', 'kinesthetic'].includes(String(learningStyle))) {
+                        res.status(400).json({ message: 'Invalid learning style' });
+                        resolve();
+                        return;
+                    }
+                    updateData.learningStyle = learningStyle as 'visual' | 'auditory' | 'kinesthetic';
+                }
 
-                if (Array.isArray(resumeFile)) {
-                  singleResumeFile = resumeFile[0];
+                if (files.resume) {
+                    const resumeFile: File | File[] = files.resume;
+                    let singleResumeFile: File;
+
+                    if (Array.isArray(resumeFile)) {
+                        singleResumeFile = resumeFile[0];
+                    } else {
+                        singleResumeFile = resumeFile;
+                    }
+
+                    if (singleResumeFile.mimetype !== 'application/pdf') {
+                        res.status(400).json({ message: 'Only PDF files are allowed' });
+                        resolve();
+                        return;
+                    }
+
+                    const fileContent = fs.readFileSync(singleResumeFile.filepath);
+                    const pdfData = await pdfParse(fileContent);
+                    updateData.resumeText = pdfData.text;
+                }
+                const result = await db.collection('users').updateOne(
+                    { _id: new ObjectId(userId) },
+                    { $set: updateData }
+                );
+
+                // ALWAYS return the user, even if no modifications were made
+                const  user = await db.collection('users').findOne({ _id: new ObjectId(userId) });
+
+                if (!user) {
+                    res.status(404).json({ message: 'User not found' });
+                    resolve();
+                    return;
+                }
+
+                if (result.modifiedCount === 0) {
+                    // Return the EXISTING user data
+                    res.status(200).json({ message: 'User found, but no changes were made', user: user });
+                    resolve();
+                    return;
+                }
+
+                res.status(200).json({ message: 'Profile updated successfully', user: user });
+                resolve();
+
+            } catch (error: unknown) {
+                console.error('Error updating profile:', error);
+                if (error instanceof Error) {
+                    res.status(500).json({ message: error.message });
                 } else {
-                  singleResumeFile = resumeFile;
+                    res.status(500).json({ message: 'Internal Server Error' });
                 }
-
-
-                // Check file type (only allow PDF)
-                if (singleResumeFile.mimetype !== 'application/pdf') {
-                    return res.status(400).json({ message: 'Only PDF files are allowed' });
-                }
-
-                const fileContent = fs.readFileSync(singleResumeFile.filepath);
-                const pdfData = await pdfParse(fileContent);
-                const resumeText = pdfData.text;
-
-                // Store the resume text (or a link to it) in your database
-                updateData.resumeText = resumeText;
+                resolve();
             }
-
-
-            // Update the user's profile in the database
-            const result = await db.collection('users').updateOne(
-                { _id: new ObjectId(userId) },
-                { $set: updateData }
-            );
-
-            if (result.modifiedCount === 0) {
-                return res.status(404).json({ message: 'User not found or no changes made' });
-            }
-            const updatedUser = await db.collection('users').findOne({ _id: new ObjectId(userId) });
-
-            return res.status(200).json({ message: 'Profile updated successfully', user: updatedUser });
-
-        } catch (error: unknown) {
-            console.error('Error updating profile:', error);
-            if (error instanceof Error) {
-              return res.status(500).json({ message: error.message });
-            }
-            return res.status(500).json({ message: 'Internal Server Error' });
-          }
+        });
     });
 }
