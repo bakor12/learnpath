@@ -49,19 +49,21 @@ const LearningPathPage: NextPage = () => {
                 const response = await fetch('/api/learning-path/generate', {
                     method: 'POST',
                     // Add timeout signal if supported by the browser
-                    signal: AbortSignal.timeout ? AbortSignal.timeout(30000) : undefined
+                    signal: AbortSignal.timeout ? AbortSignal.timeout(60000) : undefined // Increased client-side timeout
                 });
 
                 if (!response.ok) {
-                    // Safely attempt to get error details with a fallback
+                    // Handle non-JSON responses gracefully
+                    const text = await response.text(); // Get response as text FIRST
+                    let errorMessage = `Learning path generation failed: ${response.status} ${response.statusText}`;
                     try {
-                        const errorData = await response.json();
-                        throw new Error(errorData.message || 'Failed to generate learning path');
+                        const errorData = JSON.parse(text); // TRY to parse as JSON
+                        errorMessage = errorData.message || errorMessage; // Use the message if it exists
                     } catch (parseError) {
-                        // Log the parsing error
-                        console.error("JSON parsing error (learning path generation):", parseError);
-                        throw new Error(`Learning path generation failed: ${response.status} ${response.statusText}`);
+                        // It wasn't JSON.  Use the statusText and status.
+                        console.error("Non-JSON error response:", text,parseError );
                     }
+                    throw new Error(errorMessage);
                 }
 
                 // Safely parse the response
@@ -165,7 +167,7 @@ const LearningPathPage: NextPage = () => {
     }
 
     if (error) {
-        return <div>Error: {error}</div>;
+        return <div>Error: {error}</div>; // Display the user-friendly error message
     }
 
     if (!session) {
