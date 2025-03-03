@@ -2,13 +2,14 @@
 import axios from 'axios';
 
 const GEMINI_API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='; // Replace with the correct endpoint
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='; 
 
-// Set timeout for Gemini API requests (10 seconds)
-const GEMINI_TIMEOUT = 100000; 
+// Adjusted timeout for Gemini API requests (8 seconds)
+// This change ensures we do not exceed Vercel free plan limits.
+const GEMINI_TIMEOUT = 8000; 
 
 if (!GEMINI_API_KEY) {
-    throw new Error("Gemini API Key is not defined")
+    throw new Error("Gemini API Key is not defined");
 }
 
 export const analyzeResume = async (resumeText: string, learningGoals: string[], userSkills: string[]) => {
